@@ -1,0 +1,17 @@
+services:
+    database:
+      image: postgres:17-alpine
+      container_name: database
+      restart: always
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: root
+        POSTGRES_DB: escola
+      ports:
+        - 3003:5432
+      volumes:
+        - meu-volume:/var/lib/postgresql/data
+        - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+volumes:
+  meu-volume:

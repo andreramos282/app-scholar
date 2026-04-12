@@ -3,7 +3,13 @@ import AlunoType from "../types/Aluno.type";
 
 class AlunoRepository {
     public async createAluno(aluno: AlunoType) {
-        const res = await db.query("SELECT * FROM alunos;")
+        const query = "INSERT INTO alunos (matricula, nome, curso, email, telefone, cep, endereco, cidade, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);"
+        await db.query(query, Object.values<any>(aluno))
+    }
+
+    public async getAlunoPerMatricula(matricula: string) {
+        const query = "SELECT * FROM alunos WHERE matricula = $1"
+        const res = await db.query(query, [matricula])
         return res.rows
     }
 }

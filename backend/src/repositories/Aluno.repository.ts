@@ -7,10 +7,10 @@ class AlunoRepository {
         await db.query(query, Object.values<any>(aluno))
     }
 
-    public async getAlunoPerMatricula(matricula: string) {
+    public async getAlunoPerMatricula(matricula: string): Promise<AlunoType | undefined> {
         const query = "SELECT * FROM alunos WHERE matricula = $1"
-        const res = await db.query(query, [matricula])
-        return res.rows
+        const res = await db.query<AlunoType>(query, [matricula])
+        return res.rows[0]
     }
 }
 

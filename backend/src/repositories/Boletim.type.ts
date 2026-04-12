@@ -11,6 +11,12 @@ class BoletimRepository {
         const res = await db.query(query, [id])
         return res.rows
     }
+
+    public async getBoletimPerAluno(matricula: string) {
+        const query = "SELECT * FROM boletim WHERE matricula = $1"
+        const res = await db.query(query, [matricula])
+        return res.rows
+    }
 }
 
 export default BoletimRepository

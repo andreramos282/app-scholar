@@ -7,10 +7,10 @@ class ProfessorRepository {
         await db.query(query, Object.values<any>(professor))
     }
 
-    public async getProfessorPerId(id: number) {
+    public async getProfessorPerId(id: number): Promise<ProfessorType | undefined> {
         const query = "SELECT * FROM professores WHERE id = $1"
-        const res = await db.query(query, [id])
-        return res.rows
+        const res = await db.query<ProfessorType>(query, [id])
+        return res.rows[0]
     }
 }
 

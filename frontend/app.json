@@ -1,0 +1,21 @@
+{
+  "expo": {
+    "name": "App Scholar",
+    "slug": "app-scholar",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "backgroundColor": "#1A56DB"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#1A56DB"
+      },
+      "package": "br.fatec.appscholar"
+    },
+    "ios": {
+      "bundleIdentifier": "br.fatec.appscholar"
+    }
+  }
+}

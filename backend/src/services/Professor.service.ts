@@ -2,14 +2,14 @@ import ProfessorRepository from "../repositories/Professor.repository"
 import ProfessorType from "../types/Professor.type"
 
 class ProfessorService {
-    private professorRepository = new ProfessorRepository()
+    private repository = new ProfessorRepository()
 
     public async registerNewProfessor(professor: ProfessorType) {
-        await this.professorRepository.createProfessor(professor)
+        await this.repository.createProfessor(professor)
     }
 
     public async getProfessor(id: number) {
-        const professor = await this.professorRepository.getProfessorPerId(id)
+        const professor = await this.repository.getProfessorPerId(id)
         return professor
     }
 }

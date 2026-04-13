@@ -3,7 +3,7 @@ import ProfessorController from "../controllers/Professor.controller";
 import professorValidationMiddleware from "../middleware/professorValidation.middleware";
 
 class ProfessorRoutes {
-    private __controller__ = new ProfessorController
+    private controller = new ProfessorController
     private router: Router = Router()
 
     private url: string = "/"
@@ -12,12 +12,12 @@ class ProfessorRoutes {
         this.router.post(
             this.url,
             professorValidationMiddleware,
-            this.__controller__.registerProfessor.bind(this.__controller__)
+            this.controller.registerProfessor.bind(this.controller)
         )
 
         this.router.get(
             this.url,
-            this.__controller__.getProfessor.bind(this.__controller__)
+            this.controller.getProfessor.bind(this.controller)
         )
     }
 

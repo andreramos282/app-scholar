@@ -7,11 +7,11 @@ export class AuthService {
   async login(email: string, senha: string): Promise<{ token: string; usuario: User }> {
     // Query para encontrar usuário (pode ser aluno ou admin)
     const query = `
-      SELECT id, email, nome, 'aluno' as perfil
+      SELECT id, email, nome, matricula, 'aluno' as perfil
       FROM alunos
       WHERE email = $1
       UNION
-      SELECT id, email, nome, 'admin' as perfil
+      SELECT id, email, nome, NULL as matricula, 'admin' as perfil
       FROM (SELECT 1 as id, 'admin@fatec.sp.gov.br' as email, 'Admin' as nome) admin
       WHERE email = $1
     `;
@@ -48,6 +48,7 @@ export class AuthService {
         email: user.email,
         nome: user.nome,
         perfil: user.perfil,
+        matricula: user.matricula || null,
       },
     };
   }

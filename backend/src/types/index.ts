@@ -43,6 +43,7 @@ export interface User {
   email: string;
   perfil: 'admin' | 'aluno' | 'professor';
   nome: string;
+  matricula?: string | null;
 }
 
 export interface JwtPayload {

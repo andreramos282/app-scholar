@@ -10,7 +10,7 @@ import { Button } from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { API_ROUTES } from '../services/apiConfig';
-import { colors, spacing, radius } from '../styles/theme';
+import { useAppTheme } from '../styles/theme';
 
 interface DisciplinaForm {
   nome: string;
@@ -32,6 +32,19 @@ export const CadastroDisciplinasScreen = () => {
   const [form, setForm] = useState<DisciplinaForm>(INITIAL_FORM);
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
+  const { colors, spacing, radius } = useAppTheme();
+
+  const styles = StyleSheet.create({
+    flex: { flex: 1, backgroundColor: colors.background },
+    content: { padding: spacing.lg, paddingBottom: 60 },
+    card: {
+      backgroundColor: colors.white, borderRadius: radius.lg,
+      padding: spacing.lg, marginBottom: spacing.md,
+      shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+    },
+    btn: { marginTop: spacing.sm },
+    btnCancel: { marginTop: spacing.sm },
+  });
 
   const set = (field: keyof DisciplinaForm) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -84,15 +97,3 @@ export const CadastroDisciplinasScreen = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.lg, paddingBottom: 60 },
-  card: {
-    backgroundColor: colors.white, borderRadius: radius.lg,
-    padding: spacing.lg, marginBottom: spacing.md,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
-  },
-  btn: { marginTop: spacing.sm },
-  btnCancel: { marginTop: spacing.sm },
-});

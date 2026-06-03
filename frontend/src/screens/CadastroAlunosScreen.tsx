@@ -10,7 +10,9 @@ import { Button } from '../components/Button';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { API_ROUTES } from '../services/apiConfig';
-import { colors, spacing, radius, fontSize } from '../styles/theme';
+import { viaCepService } from '../services/viaCepService';
+import { ibgeService } from '../services/ibgeService';
+import { useAppTheme } from '../styles/theme';
 
 interface AlunoForm {
   nome: string;
@@ -37,6 +39,25 @@ export const CadastroAlunosScreen = () => {
   const [form, setForm] = useState<AlunoForm>(INITIAL_FORM);
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
+  const [estados, setEstados] = useState<any[]>([]);
+
+  const { colors, spacing, radius, fontSize } = useAppTheme();
+
+  const styles = StyleSheet.create({
+    flex: { flex: 1, backgroundColor: colors.background },
+    content: { padding: spacing.lg, paddingBottom: spacing.xxl },
+    section: {
+      backgroundColor: colors.white, borderRadius: radius.lg,
+      padding: spacing.lg, marginBottom: spacing.md,
+      shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
+    },
+    sectionTitle: {
+      fontSize: fontSize.md, fontWeight: '700',
+      color: colors.primary, marginBottom: spacing.md,
+    },
+    btn: { marginTop: spacing.sm },
+    btnCancel: { marginTop: spacing.sm },
+  });
 
   const set = (field: keyof AlunoForm) => (value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -66,6 +87,44 @@ export const CadastroAlunosScreen = () => {
     }
   };
 
+  // Buscar lista de estados (IBGE) ao montar
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const ufs = await ibgeService.buscarEstados();
+        if (mounted) setEstados(ufs);
+      } catch (err) {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  // Buscar endereço pelo CEP quando o campo tiver 8 dígitos
+  React.useEffect(() => {
+    const cepLimpo = form.cep.replace(/\D/g, '');
+    let mounted = true;
+    if (cepLimpo.length === 8) {
+      (async () => {
+        try {
+          const endereco = await viaCepService.buscarEndereco(cepLimpo);
+          if (!mounted) return;
+          setForm((prev) => ({
+            ...prev,
+            endereco: `${endereco.logradouro}${endereco.numero ? ', ' + endereco.numero : ''}`,
+            cidade: endereco.localidade,
+            estado: endereco.uf,
+          }));
+        } catch (err: any) {
+          // não bloquear fluxo, apenas mostrar mensagem
+          // Alert is imported above
+        }
+      })();
+    }
+    return () => { mounted = false; };
+  }, [form.cep]);
+
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <Header title="Cadastro de Alunos" showBack />
@@ -93,19 +152,3 @@ export const CadastroAlunosScreen = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-  section: {
-    backgroundColor: colors.white, borderRadius: radius.lg,
-    padding: spacing.lg, marginBottom: spacing.md,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 6, elevation: 1,
-  },
-  sectionTitle: {
-    fontSize: fontSize.md, fontWeight: '700',
-    color: colors.primary, marginBottom: spacing.md,
-  },
-  btn: { marginTop: spacing.sm },
-  btnCancel: { marginTop: spacing.sm },
-});

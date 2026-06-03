@@ -1,4 +1,5 @@
 import { api } from './api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface LoginRequest {
   login: string;
@@ -22,6 +23,15 @@ export interface AuthResponse {
 }
 
 export const authService = {
+  // cached values for sync access in services
+  _cachedToken: null as string | null,
+  _cachedUsuario: null as any,
+
+  setCached(token: string | null, usuario: any | null) {
+    this._cachedToken = token;
+    this._cachedUsuario = usuario;
+  },
+
   async login(login: string, senha: string): Promise<AuthResponse> {
     const response = await api.post<AuthResponse>('/api/auth/login', {
       login,
@@ -29,8 +39,9 @@ export const authService = {
     });
     
     if (response.token) {
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('usuario', JSON.stringify(response.usuario));
+      await AsyncStorage.setItem('@scholar:token', response.token);
+      await AsyncStorage.setItem('@scholar:user', JSON.stringify(response.usuario));
+      this.setCached(response.token, response.usuario);
     }
     
     return response;
@@ -44,28 +55,30 @@ export const authService = {
     });
     
     if (response.token) {
-      localStorage.setItem('token', response.token);
-      localStorage.setItem('usuario', JSON.stringify(response.usuario));
+      await AsyncStorage.setItem('@scholar:token', response.token);
+      await AsyncStorage.setItem('@scholar:user', JSON.stringify(response.usuario));
+      this.setCached(response.token, response.usuario);
     }
     
     return response;
   },
 
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('usuario');
+  async logout(): Promise<void> {
+    await AsyncStorage.removeItem('@scholar:token');
+    await AsyncStorage.removeItem('@scholar:user');
+    this.setCached(null, null);
   },
 
+  // synchronous getters for services that expect immediate token
   getToken(): string | null {
-    return localStorage.getItem('token');
+    return this._cachedToken;
   },
 
-  getUsuario() {
-    const usuario = localStorage.getItem('usuario');
-    return usuario ? JSON.parse(usuario) : null;
+  getUsuario(): any | null {
+    return this._cachedUsuario;
   },
 
   isLogado(): boolean {
-    return !!this.getToken();
+    return !!this._cachedToken;
   },
 };

@@ -6,7 +6,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
-import { colors, spacing, radius, fontSize } from '../styles/theme';
+import { useAppTheme } from '../styles/theme';
 
 export const LoginScreen = () => {
   const { login } = useAuth();
@@ -14,6 +14,40 @@ export const LoginScreen = () => {
   const [senha, setSenha] = useState('');
   const [errors, setErrors] = useState<{ login?: string; senha?: string }>({});
   const [loading, setLoading] = useState(false);
+  const { colors, spacing, radius, fontSize } = useAppTheme();
+
+  const styles = StyleSheet.create({
+    flex: { flex: 1, backgroundColor: colors.primary },
+    container: { flexGrow: 1, justifyContent: 'center', padding: spacing.lg },
+    hero: { alignItems: 'center', marginBottom: spacing.xl },
+    logoBox: {
+      width: 80, height: 80, borderRadius: radius.full,
+      backgroundColor: 'rgba(255,255,255,0.2)',
+      justifyContent: 'center', alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    logoIcon: { fontSize: 40 },
+    appName: { color: colors.white, fontSize: fontSize.xxl, fontWeight: '800' },
+    appSubtitle: { color: 'rgba(255,255,255,0.7)', fontSize: fontSize.sm, marginTop: 4 },
+    card: {
+      backgroundColor: colors.white,
+      borderRadius: radius.lg,
+      padding: spacing.lg,
+      shadowColor: '#000',
+      shadowOpacity: 0.1,
+      shadowRadius: 12,
+      elevation: 4,
+    },
+    cardTitle: {
+      fontSize: fontSize.xl, fontWeight: '700',
+      color: colors.textPrimary, marginBottom: spacing.lg,
+    },
+    loginBtn: { marginTop: spacing.sm },
+    footer: {
+      textAlign: 'center', color: 'rgba(255,255,255,0.5)',
+      fontSize: fontSize.xs, marginTop: spacing.xl,
+    },
+  });
 
   const validate = () => {
     const newErrors: { login?: string; senha?: string } = {};
@@ -86,36 +120,3 @@ export const LoginScreen = () => {
     </KeyboardAvoidingView>
   );
 };
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.primary },
-  container: { flexGrow: 1, justifyContent: 'center', padding: spacing.lg },
-  hero: { alignItems: 'center', marginBottom: spacing.xl },
-  logoBox: {
-    width: 80, height: 80, borderRadius: radius.full,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    justifyContent: 'center', alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  logoIcon: { fontSize: 40 },
-  appName: { color: colors.white, fontSize: fontSize.xxl, fontWeight: '800' },
-  appSubtitle: { color: 'rgba(255,255,255,0.7)', fontSize: fontSize.sm, marginTop: 4 },
-  card: {
-    backgroundColor: colors.white,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  cardTitle: {
-    fontSize: fontSize.xl, fontWeight: '700',
-    color: colors.textPrimary, marginBottom: spacing.lg,
-  },
-  loginBtn: { marginTop: spacing.sm },
-  footer: {
-    textAlign: 'center', color: 'rgba(255,255,255,0.5)',
-    fontSize: fontSize.xs, marginTop: spacing.xl,
-  },
-});

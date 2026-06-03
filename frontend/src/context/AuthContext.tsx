@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '../services/api';
 import { API_ROUTES } from '../services/apiConfig';
+import { authService } from '../services/authService';
 
 interface User {
   id: number;
@@ -36,6 +37,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (storedToken && storedUser) {
         setToken(storedToken);
         setUser(JSON.parse(storedUser));
+        // sync cache for services
+        authService.setCached(storedToken, JSON.parse(storedUser));
       }
     } catch {
       // ignore
@@ -45,16 +48,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const login = async (loginValue: string, senha: string) => {
-    if (loginValue === 'admin' && senha === '123456') {
-      const mockUser = { id: 1, nome: 'Admin', email: 'admin@fatec.sp.gov.br', perfil: 'admin' };
-      const mockToken = 'mock-token-123';
-      setUser(mockUser);
-      setToken(mockToken);
-      await AsyncStorage.setItem('@scholar:token', mockToken);
-      await AsyncStorage.setItem('@scholar:user', JSON.stringify(mockUser));
-      return;
+    setIsLoading(true);
+    try {
+      const response = await api.post('/api/auth/login', { login: loginValue, senha });
+      const { token: respToken, usuario } = response as any;
+      if (!respToken) throw new Error('Resposta de autenticação inválida');
+      setToken(respToken);
+      setUser(usuario);
+      await AsyncStorage.setItem('@scholar:token', respToken);
+      await AsyncStorage.setItem('@scholar:user', JSON.stringify(usuario));
+      // sync cache for services
+      authService.setCached(respToken, usuario);
+    } catch (err: any) {
+      throw err;
+    } finally {
+      setIsLoading(false);
     }
-    throw new Error('Usuário ou senha inválidos');
   };
 
   const logout = async () => {

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, StyleSheet, ScrollView,
   KeyboardAvoidingView, Platform, Alert,
+  Modal, TouchableOpacity, FlatList, ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Header } from '../components/Header';
@@ -11,7 +12,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../services/api';
 import { API_ROUTES } from '../services/apiConfig';
 import { viaCepService } from '../services/viaCepService';
-import { ibgeService } from '../services/ibgeService';
+import { ibgeService, UF, Municipio } from '../services/ibgeService';
 import { useAppTheme } from '../styles/theme';
 
 interface AlunoForm {
@@ -39,7 +40,11 @@ export const CadastroAlunosScreen = () => {
   const [form, setForm] = useState<AlunoForm>(INITIAL_FORM);
   const [errors, setErrors] = useState<Errors>({});
   const [loading, setLoading] = useState(false);
-  const [estados, setEstados] = useState<any[]>([]);
+  const [estados, setEstados] = useState<UF[]>([]);
+  const [municipios, setMunicipios] = useState<Municipio[]>([]);
+  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
+  const [showEstadoModal, setShowEstadoModal] = useState(false);
+  const [showCidadeModal, setShowCidadeModal] = useState(false);
 
   const { colors, spacing, radius, fontSize } = useAppTheme();
 
@@ -57,6 +62,59 @@ export const CadastroAlunosScreen = () => {
     },
     btn: { marginTop: spacing.sm },
     btnCancel: { marginTop: spacing.sm },
+    selectField: {
+      marginBottom: spacing.md,
+    },
+    selectLabel: {
+      fontSize: fontSize.sm,
+      color: colors.textSecondary,
+      marginBottom: spacing.xs,
+      fontWeight: '500',
+    },
+    selectValue: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: radius.md,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm + 2,
+      fontSize: fontSize.md,
+      color: colors.textPrimary,
+      backgroundColor: colors.white,
+    },
+    modalContainer: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.35)',
+      justifyContent: 'center',
+      padding: spacing.lg,
+    },
+    modalContent: {
+      backgroundColor: colors.surface,
+      borderRadius: radius.lg,
+      maxHeight: '80%',
+      padding: spacing.md,
+    },
+    modalTitle: {
+      fontSize: fontSize.lg,
+      fontWeight: '700',
+      marginBottom: spacing.md,
+      color: colors.textPrimary,
+    },
+    itemButton: {
+      paddingVertical: spacing.sm,
+      paddingHorizontal: spacing.sm,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+    },
+    itemText: {
+      color: colors.textPrimary,
+      fontSize: fontSize.md,
+    },
+    closeText: {
+      color: colors.primary,
+      textAlign: 'right',
+      marginTop: spacing.md,
+      fontWeight: '700',
+    },
   });
 
   const set = (field: keyof AlunoForm) => (value: string) =>
@@ -87,6 +145,22 @@ export const CadastroAlunosScreen = () => {
     }
   };
 
+  const handleSelectEstado = async (uf: UF) => {
+    setForm((prev) => ({ ...prev, estado: uf.sigla, cidade: '' }));
+    setShowEstadoModal(false);
+    setMunicipios([]);
+    setLoadingMunicipios(true);
+    try {
+      const cidades = await ibgeService.buscarMunicipios(uf.id);
+      setMunicipios(cidades);
+      setShowCidadeModal(true);
+    } catch {
+      setMunicipios([]);
+    } finally {
+      setLoadingMunicipios(false);
+    }
+  };
+
   // Buscar lista de estados (IBGE) ao montar
   React.useEffect(() => {
     let mounted = true;
@@ -94,7 +168,7 @@ export const CadastroAlunosScreen = () => {
       try {
         const ufs = await ibgeService.buscarEstados();
         if (mounted) setEstados(ufs);
-      } catch (err) {
+      } catch {
         // ignore
       }
     })();
@@ -116,9 +190,8 @@ export const CadastroAlunosScreen = () => {
             cidade: endereco.localidade,
             estado: endereco.uf,
           }));
-        } catch (err: any) {
+        } catch {
           // não bloquear fluxo, apenas mostrar mensagem
-          // Alert is imported above
         }
       })();
     }
@@ -142,12 +215,88 @@ export const CadastroAlunosScreen = () => {
           <Text style={styles.sectionTitle}>Endereço</Text>
           <Input label="CEP" placeholder="00000-000" value={form.cep} onChangeText={set('cep')} keyboardType="numeric" />
           <Input label="Endereço" placeholder="Rua, número, complemento" value={form.endereco} onChangeText={set('endereco')} />
-          <Input label="Cidade" placeholder="Ex: São José dos Campos" value={form.cidade} onChangeText={set('cidade')} />
-          <Input label="Estado" placeholder="Ex: SP" value={form.estado} onChangeText={set('estado')} maxLength={2} autoCapitalize="characters" />
+          <View style={styles.selectField}>
+            <Text style={styles.selectLabel}>Cidade</Text>
+            <TouchableOpacity
+              style={styles.selectValue}
+              onPress={() => {
+                if (!form.estado) {
+                  Alert.alert('Atenção', 'Selecione um estado antes de escolher a cidade.');
+                  return;
+                }
+                if (municipios.length === 0) {
+                  Alert.alert('Aguarde', 'Buscando municípios para o estado selecionado.');
+                  return;
+                }
+                setShowCidadeModal(true);
+              }}
+            >
+              <Text style={styles.itemText}>{form.cidade || 'Selecione a cidade'}</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.selectField}>
+            <Text style={styles.selectLabel}>Estado</Text>
+            <TouchableOpacity
+              style={styles.selectValue}
+              onPress={() => setShowEstadoModal(true)}
+            >
+              <Text style={styles.itemText}>{form.estado || 'Selecione o estado'}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
         <Button title="Salvar Aluno" onPress={handleSalvar} loading={loading} style={styles.btn} />
         <Button title="Cancelar" onPress={() => navigation.goBack()} variant="outline" style={styles.btnCancel} />
+
+        <Modal visible={showEstadoModal} animationType="slide" transparent>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Selecione o Estado</Text>
+              <FlatList
+                data={estados}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity style={styles.itemButton} onPress={() => handleSelectEstado(item)}>
+                    <Text style={styles.itemText}>{`${item.nome} (${item.sigla})`}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+              <TouchableOpacity onPress={() => setShowEstadoModal(false)}>
+                <Text style={styles.closeText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal visible={showCidadeModal} animationType="slide" transparent>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Selecione a Cidade</Text>
+              {loadingMunicipios ? (
+                <ActivityIndicator size="large" color={colors.primary} />
+              ) : (
+                <FlatList
+                  data={municipios}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.itemButton}
+                      onPress={() => {
+                        setForm((prev) => ({ ...prev, cidade: item.nome }));
+                        setShowCidadeModal(false);
+                      }}
+                    >
+                      <Text style={styles.itemText}>{item.nome}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              )}
+              <TouchableOpacity onPress={() => setShowCidadeModal(false)}>
+                <Text style={styles.closeText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </ScrollView>
     </KeyboardAvoidingView>
   );

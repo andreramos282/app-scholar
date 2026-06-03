@@ -1,30 +1,23 @@
-import { Router } from "express";
-import ProfessorController from "../controllers/Professor.controller";
-import professorValidationMiddleware from "../middleware/professorValidation.middleware";
+import { Router } from 'express';
+import { ProfessorController } from '../controllers/ProfessorController';
+import { authMiddleware } from '../middleware/authMiddleware';
 
-class ProfessorRoutes {
-    private controller = new ProfessorController
-    private router: Router = Router()
+const router = Router();
+const professorController = new ProfessorController();
 
-    private url: string = "/"
+// POST /api/professor - Criar novo professor
+router.post('/', authMiddleware, (req, res) => professorController.create(req, res));
 
-    constructor() {
-        this.router.post(
-            this.url,
-            professorValidationMiddleware,
-            this.controller.registerProfessor.bind(this.controller)
-        )
+// GET /api/professor - Listar todos os professores
+router.get('/', authMiddleware, (req, res) => professorController.findAll(req, res));
 
-        this.router.get(
-            this.url,
-            this.controller.getProfessor.bind(this.controller)
-        )
-    }
+// GET /api/professor/:id - Buscar professor por ID
+router.get('/:id', authMiddleware, (req, res) => professorController.findById(req, res));
 
-    public getRouter() {
-        return this.router
-    }
-}
+// PUT /api/professor/:id - Atualizar professor
+router.put('/:id', authMiddleware, (req, res) => professorController.update(req, res));
 
-const professorRoutes = new ProfessorRoutes().getRouter()
-export default professorRoutes
+// DELETE /api/professor/:id - Deletar professor
+router.delete('/:id', authMiddleware, (req, res) => professorController.delete(req, res));
+
+export default router;

@@ -1,30 +1,26 @@
-import { Router } from "express";
-import DisciplinaController from "../controllers/Disciplina.controller";
-import { disciplinaValidationMiddleware } from "../middleware/disciplinaValidation.middleware";
+import { Router } from 'express';
+import { DisciplinaController } from '../controllers/DisciplinaController';
+import { authMiddleware } from '../middleware/authMiddleware';
 
-class DisciplinaRoutes {
-    private controller = new DisciplinaController()
-    private router: Router = Router()
+const router = Router();
+const disciplinaController = new DisciplinaController();
 
-    private url: string = "/"
+// POST /api/disciplina - Criar nova disciplina
+router.post('/', authMiddleware, (req, res) => disciplinaController.create(req, res));
 
-    constructor() {
-        this.router.post(
-            this.url,
-            disciplinaValidationMiddleware,
-            this.controller.registerDisciplina.bind(this.controller)
-        )
+// GET /api/disciplina - Listar todas as disciplinas
+router.get('/', authMiddleware, (req, res) => disciplinaController.findAll(req, res));
 
-        this.router.get(
-            this.url,
-            this.controller.getDisciplina.bind(this.controller)
-        )
-    }
+// GET /api/disciplina/:id - Buscar disciplina por ID
+router.get('/:id', authMiddleware, (req, res) => disciplinaController.findById(req, res));
 
-    public getRouter() {
-        return this.router
-    }
-}
+// GET /api/disciplina/curso/:curso - Buscar disciplinas por curso
+router.get('/curso/:curso', authMiddleware, (req, res) => disciplinaController.findByCurso(req, res));
 
-const disciplinaRouter = new DisciplinaRoutes().getRouter()
-export default disciplinaRouter
+// PUT /api/disciplina/:id - Atualizar disciplina
+router.put('/:id', authMiddleware, (req, res) => disciplinaController.update(req, res));
+
+// DELETE /api/disciplina/:id - Deletar disciplina
+router.delete('/:id', authMiddleware, (req, res) => disciplinaController.delete(req, res));
+
+export default router;

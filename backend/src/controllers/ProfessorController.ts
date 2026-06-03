@@ -1,100 +1,126 @@
 import { Request, Response } from 'express';
-import { ProfessorRepository } from '../repositories/ProfessorRepository';
-import { Professor } from '../types';
+import db from '../db';
 
-const professorRepository = new ProfessorRepository();
+export interface Professor {
+  id?: number;
+  nome: string;
+  email: string;
+  especialidade: string;
+  telefone?: string;
+}
+
+class ProfessorRepository {
+  async create(professor: Professor): Promise<Professor> {
+    const query = `
+      INSERT INTO professores (nome, email, especialidade, telefone)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+    `;
+    const values = [professor.nome, professor.email, professor.especialidade, professor.telefone || null];
+    const result = await db.query(query, values);
+    return result.rows[0];
+  }
+
+  async findById(id: number): Promise<Professor | null> {
+    const query = 'SELECT * FROM professores WHERE id = $1';
+    const result = await db.query(query, [id]);
+    return result.rows[0] || null;
+  }
+
+  async findAll(): Promise<Professor[]> {
+    const query = 'SELECT * FROM professores ORDER BY nome';
+    const result = await db.query(query);
+    return result.rows;
+  }
+
+  async update(id: number, professor: Partial<Professor>): Promise<Professor> {
+    const updates: string[] = [];
+    const values: any[] = [];
+    let paramCount = 1;
+
+    Object.entries(professor).forEach(([key, value]) => {
+      if (key !== 'id' && value !== undefined) {
+        updates.push(`${key} = $${paramCount}`);
+        values.push(value);
+        paramCount++;
+      }
+    });
+
+    if (updates.length === 0) {
+      const existing = await this.findById(id);
+      if (!existing) throw new Error('Professor não encontrado');
+      return existing;
+    }
+
+    values.push(id);
+    const query = `
+      UPDATE professores
+      SET ${updates.join(', ')}
+      WHERE id = $${paramCount}
+      RETURNING *
+    `;
+    const result = await db.query(query, values);
+    return result.rows[0];
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const query = 'DELETE FROM professores WHERE id = $1';
+    const result = await db.query(query, [id]);
+    return result.rowCount > 0;
+  }
+}
+
+const professorRepo = new ProfessorRepository();
 
 export class ProfessorController {
   async create(req: Request, res: Response) {
     try {
-      const { nome, titulacao, area_atuacao, tempo_docencia, email } = req.body;
-
-      // Validações básicas
-      if (!nome || !titulacao || !area_atuacao || tempo_docencia === undefined || !email) {
-        return res.status(400).json({
-          error: 'Nome, titulação, área, tempo de docência e email são obrigatórios',
-        });
-      }
-
-      // Verificar se email já existe
-      const existente = await professorRepository.findByEmail(email);
-      if (existente) {
-        return res.status(409).json({ error: 'Email já cadastrado' });
-      }
-
-      const professor: Professor = {
-        nome,
-        titulacao,
-        area_atuacao,
-        tempo_docencia,
-        email,
-      };
-
-      const novoProfessor = await professorRepository.create(professor);
-      res.status(201).json(novoProfessor);
+      const professor = await professorRepo.create(req.body);
+      res.status(201).json(professor);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao criar professor' });
+      res.status(400).json({ error: error.message });
     }
   }
 
   async findAll(req: Request, res: Response) {
     try {
-      const professores = await professorRepository.findAll();
+      const professores = await professorRepo.findAll();
       res.json(professores);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao buscar professores' });
+      res.status(500).json({ error: error.message });
     }
   }
 
   async findById(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const professor = await professorRepository.findById(parseInt(id));
-
+      const professor = await professorRepo.findById(parseInt(req.params.id));
       if (!professor) {
         return res.status(404).json({ error: 'Professor não encontrado' });
       }
-
       res.json(professor);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao buscar professor' });
+      res.status(500).json({ error: error.message });
     }
   }
 
   async update(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const updates = req.body;
-
-      const professor = await professorRepository.findById(parseInt(id));
-      if (!professor) {
-        return res.status(404).json({ error: 'Professor não encontrado' });
-      }
-
-      const professorAtualizado = await professorRepository.update(parseInt(id), updates);
-      res.json(professorAtualizado);
+      const professor = await professorRepo.update(parseInt(req.params.id), req.body);
+      res.json(professor);
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao atualizar professor' });
+      res.status(400).json({ error: error.message });
     }
   }
 
   async delete(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-
-      const professor = await professorRepository.findById(parseInt(id));
-      if (!professor) {
+      const deleted = await professorRepo.delete(parseInt(req.params.id));
+      if (!deleted) {
         return res.status(404).json({ error: 'Professor não encontrado' });
       }
-
-      const deletado = await professorRepository.delete(parseInt(id));
-      if (deletado) {
-        return res.json({ message: 'Professor deletado com sucesso' });
-      }
-
-      res.status(500).json({ error: 'Erro ao deletar professor' });
+      res.json({ message: 'Professor deletado com sucesso' });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || 'Erro ao deletar professor' });
+      res.status(500).json({ error: error.message });
     }
   }
 }

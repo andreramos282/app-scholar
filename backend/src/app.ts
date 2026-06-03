@@ -6,6 +6,7 @@ import professorRoutes from './routers/Professor.routes'
 import disciplinaRouter from './routers/Disciplina.routes'
 import boletimRouter from './routers/Boletim.routes'
 import authRouter from './routers/Auth.routes'
+import { errorHandler } from './middleware/errorHandler'
 
 dotenv.config()
 
@@ -25,5 +26,8 @@ app.use("/api/boletim", boletimRouter)
 
 // 404 handler
 app.use("/", (_: Request, res: Response) => res.sendStatus(404))
+
+// Error handler (SEMPRE por último)
+app.use(errorHandler)
 
 export default app

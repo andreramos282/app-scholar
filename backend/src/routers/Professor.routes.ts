@@ -1,23 +1,45 @@
-import { Router } from 'express';
-import { ProfessorController } from '../controllers/ProfessorController';
-import { authMiddleware } from '../middleware/authMiddleware';
+import { Router } from "express";
+import ProfessorController from "../controllers/Professor.controller";
+import professorValidationMiddleware from "../middleware/professorValidation.middleware";
 
-const router = Router();
-const professorController = new ProfessorController();
+class ProfessorRoutes {
+    private controller = new ProfessorController
+    private router: Router = Router()
 
-// POST /api/professor - Criar novo professor
-router.post('/', authMiddleware, (req, res) => professorController.create(req, res));
+    private url: string = "/"
 
-// GET /api/professor - Listar todos os professores
-router.get('/', authMiddleware, (req, res) => professorController.findAll(req, res));
+    constructor() {
+        this.router.post(
+            this.url,
+            professorValidationMiddleware,
+            this.controller.registerProfessor.bind(this.controller)
+        )
 
-// GET /api/professor/:id - Buscar professor por ID
-router.get('/:id', authMiddleware, (req, res) => professorController.findById(req, res));
+        this.router.get(
+            this.url,
+            this.controller.getProfessor.bind(this.controller)
+        )
 
-// PUT /api/professor/:id - Atualizar professor
-router.put('/:id', authMiddleware, (req, res) => professorController.update(req, res));
+        this.router.get(
+            "/disciplinas",
+            this.controller.getDisciplinasPorProfessor.bind(this.controller)
+        )
 
-// DELETE /api/professor/:id - Deletar professor
-router.delete('/:id', authMiddleware, (req, res) => professorController.delete(req, res));
+        this.router.get(
+            "/boletim",
+            this.controller.getBoletimPorProfessor.bind(this.controller)
+        )
 
-export default router;
+        this.router.get(
+            "/estatisticas",
+            this.controller.getEstatisticas.bind(this.controller)
+        )
+    }
+
+    public getRouter() {
+        return this.router
+    }
+}
+
+const professorRoutes = new ProfessorRoutes().getRouter()
+export default professorRoutes

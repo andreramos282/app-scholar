@@ -1,26 +1,35 @@
-import { Router } from 'express';
-import { DisciplinaController } from '../controllers/DisciplinaController';
-import { authMiddleware } from '../middleware/authMiddleware';
+import { Router } from "express";
+import DisciplinaController from "../controllers/Disciplina.controller";
+import { disciplinaValidationMiddleware } from "../middleware/disciplinaValidation.middleware";
 
-const router = Router();
-const disciplinaController = new DisciplinaController();
+class DisciplinaRoutes {
+    private controller = new DisciplinaController()
+    private router: Router = Router()
 
-// POST /api/disciplina - Criar nova disciplina
-router.post('/', authMiddleware, (req, res) => disciplinaController.create(req, res));
+    private url: string = "/"
 
-// GET /api/disciplina - Listar todas as disciplinas
-router.get('/', authMiddleware, (req, res) => disciplinaController.findAll(req, res));
+    constructor() {
+        this.router.post(
+            this.url,
+            disciplinaValidationMiddleware,
+            this.controller.registerDisciplina.bind(this.controller)
+        )
 
-// GET /api/disciplina/:id - Buscar disciplina por ID
-router.get('/:id', authMiddleware, (req, res) => disciplinaController.findById(req, res));
+        this.router.get(
+            this.url,
+            this.controller.getDisciplina.bind(this.controller)
+        )
 
-// GET /api/disciplina/curso/:curso - Buscar disciplinas por curso
-router.get('/curso/:curso', authMiddleware, (req, res) => disciplinaController.findByCurso(req, res));
+        this.router.get(
+            "/estatisticas",
+            this.controller.getEstatisticas.bind(this.controller)
+        )
+    }
 
-// PUT /api/disciplina/:id - Atualizar disciplina
-router.put('/:id', authMiddleware, (req, res) => disciplinaController.update(req, res));
+    public getRouter() {
+        return this.router
+    }
+}
 
-// DELETE /api/disciplina/:id - Deletar disciplina
-router.delete('/:id', authMiddleware, (req, res) => disciplinaController.delete(req, res));
-
-export default router;
+const disciplinaRouter = new DisciplinaRoutes().getRouter()
+export default disciplinaRouter

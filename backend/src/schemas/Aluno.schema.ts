@@ -5,6 +5,7 @@ export const alunoSchema = z.object({
     nome: z.string(),
     curso: z.string(),
     email: z.string().email(),
+    semestre: z.number().min(1).max(6),
     telefone: z.string().optional(),
     cep: z.string().optional(),
     endereco: z.string().optional(),

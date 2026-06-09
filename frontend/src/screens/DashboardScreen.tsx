@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-nati
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../context/AuthContext';
-import { useAppTheme } from '../styles/theme';
+import { colors, spacing, radius, fontSize } from '../styles/theme';
 import { AppStackParamList } from '../navigation/AppNavigator';
 
 type Nav = NativeStackNavigationProp<AppStackParamList>;
@@ -21,51 +21,12 @@ const MENU_CARDS: MenuCard[] = [
   { icon: '👨‍🏫', title: 'Professores', subtitle: 'Gerenciar corpo docente', screen: 'CadastroProfessores', color: '#0891B2' },
   { icon: '📚', title: 'Disciplinas', subtitle: 'Gerenciar matérias', screen: 'CadastroDisciplinas', color: '#059669' },
   { icon: '📋', title: 'Boletim', subtitle: 'Consultar notas', screen: 'Boletim', color: '#D97706' },
+  { icon: '📊', title: 'Estatísticas', subtitle: 'Ver dados gerais', screen: 'Estatisticas', color: '#7C3AED' },
 ];
 
 export const DashboardScreen = () => {
   const navigation = useNavigation<Nav>();
   const { user, logout } = useAuth();
-  const { colors, spacing, radius, fontSize } = useAppTheme();
-
-  const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: colors.background },
-    content: { padding: spacing.lg, paddingBottom: spacing.xxl },
-    header: {
-      flexDirection: 'row', justifyContent: 'space-between',
-      alignItems: 'flex-start', marginBottom: spacing.xl,
-      marginTop: spacing.md,
-    },
-    greeting: { fontSize: fontSize.xl, fontWeight: '700', color: colors.textPrimary },
-    subGreeting: { fontSize: fontSize.sm, color: colors.textSecondary, marginTop: 2 },
-    logoutBtn: {
-      backgroundColor: colors.primaryLight,
-      paddingHorizontal: spacing.md, paddingVertical: spacing.xs + 2,
-      borderRadius: radius.full,
-    },
-    logoutText: { color: colors.primary, fontSize: fontSize.sm, fontWeight: '600' },
-    grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
-    card: {
-      backgroundColor: colors.white,
-      borderRadius: radius.lg,
-      padding: spacing.lg,
-      width: '47%',
-      borderTopWidth: 3,
-      shadowColor: '#000',
-      shadowOpacity: 0.06,
-      shadowRadius: 8,
-      elevation: 2,
-    },
-    iconBox: {
-      width: 48, height: 48, borderRadius: radius.md,
-      justifyContent: 'center', alignItems: 'center',
-      marginBottom: spacing.sm,
-    },
-    icon: { fontSize: 24 },
-    cardTitle: { fontSize: fontSize.md, fontWeight: '700', color: colors.textPrimary },
-    cardSubtitle: { fontSize: fontSize.xs, color: colors.textSecondary, marginTop: 2 },
-    version: { textAlign: 'center', color: colors.textMuted, fontSize: fontSize.xs, marginTop: spacing.xl },
-  });
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -82,7 +43,12 @@ export const DashboardScreen = () => {
 
       {/* Cards de navegação */}
       <View style={styles.grid}>
-        {MENU_CARDS.map((item) => (
+        {MENU_CARDS.filter((item) => {
+          if (user?.perfil === 'admin') return true;
+          if (user?.perfil === 'aluno') return item.screen === 'Boletim';
+          if (user?.perfil === 'professor') return item.screen === 'Boletim' || item.screen === 'CadastroDisciplinas';
+          return false;
+        }).map((item) => (
           <TouchableOpacity
             key={item.screen}
             style={[styles.card, { borderTopColor: item.color }]}

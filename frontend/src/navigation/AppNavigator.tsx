@@ -8,6 +8,7 @@ import { CadastroAlunosScreen } from '../screens/CadastroAlunosScreen';
 import { CadastroProfessoresScreen } from '../screens/CadastroProfessoresScreen';
 import { CadastroDisciplinasScreen } from '../screens/CadastroDisciplinasScreen';
 import { BoletimScreen } from '../screens/BoletimScreen';
+import { EstatisticasScreen } from '../screens/EstatisticasScreen';
 import { Loading } from '../components/Loading';
 
 export type AppStackParamList = {
@@ -17,6 +18,7 @@ export type AppStackParamList = {
   CadastroProfessores: undefined;
   CadastroDisciplinas: undefined;
   Boletim: undefined;
+  Estatisticas: undefined;
 };
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
@@ -36,6 +38,7 @@ export const AppNavigator = () => {
             <Stack.Screen name="CadastroProfessores" component={CadastroProfessoresScreen} />
             <Stack.Screen name="CadastroDisciplinas" component={CadastroDisciplinasScreen} />
             <Stack.Screen name="Boletim" component={BoletimScreen} />
+            <Stack.Screen name="Estatisticas" component={EstatisticasScreen} />
           </>
         ) : (
           <Stack.Screen name="Login" component={LoginScreen} />

@@ -3,6 +3,8 @@ CREATE TABLE IF NOT EXISTS alunos (
     nome VARCHAR(100) NOT NULL,
     curso VARCHAR(100) NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
+    senha VARCHAR(150) NOT NULL DEFAULT '123456',
+    semestre INT NOT NULL CHECK (semestre BETWEEN 1 AND 6),
     telefone VARCHAR(20),
     cep VARCHAR(10),
     endereco VARCHAR(150),
@@ -16,8 +18,10 @@ CREATE TABLE IF NOT EXISTS professores (
     nome VARCHAR(100) NOT NULL,
     titulacao VARCHAR(100) NOT NULL,
     area_atuacao VARCHAR(100) NOT NULL,
+    semestre INT NOT NULL CHECK (semestre BETWEEN 1 AND 6),
     tempo_docencia INT CHECK (tempo_docencia >= 0),
-    email VARCHAR(150) UNIQUE NOT NULL
+    email VARCHAR(150) UNIQUE NOT NULL,
+    senha VARCHAR(150) NOT NULL DEFAULT '123456'
 );
 
 CREATE TABLE IF NOT EXISTS disciplina (

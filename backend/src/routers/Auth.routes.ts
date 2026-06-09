@@ -1,13 +1,19 @@
-import { Router } from 'express';
-import { AuthController } from '../controllers/AuthController';
+import { Router } from "express";
+import AuthController from "../controllers/Auth.controller";
 
-const router = Router();
-const authController = new AuthController();
+class AuthRoutes {
+    private controller = new AuthController();
+    private router: Router = Router();
 
-// POST /api/auth/login - Login do usuário
-router.post('/login', (req, res) => authController.login(req, res));
+    constructor() {
+        this.router.post("/login", this.controller.login.bind(this.controller));
+        this.router.put("/change-password", this.controller.changePassword.bind(this.controller));
+    }
 
-// POST /api/auth/register - Registrar novo usuário
-router.post('/register', (req, res) => authController.register(req, res));
+    public getRouter() {
+        return this.router;
+    }
+}
 
-export default router;
+const authRoutes = new AuthRoutes().getRouter();
+export default authRoutes;

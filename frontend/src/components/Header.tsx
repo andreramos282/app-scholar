@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { useAppTheme } from '../styles/theme';
+import { colors, spacing, fontSize } from '../styles/theme';
 
 interface HeaderProps {
   title: string;
@@ -10,23 +10,10 @@ interface HeaderProps {
 
 export const Header = ({ title, showBack = false }: HeaderProps) => {
   const navigation = useNavigation();
-  const { colors, spacing, fontSize, scheme } = useAppTheme();
-
-  const styles = StyleSheet.create({
-    container: {
-      backgroundColor: colors.primary,
-      paddingTop: spacing.xl,
-      paddingBottom: spacing.md,
-      paddingHorizontal: spacing.md,
-    },
-    backBtn: { marginBottom: spacing.xs },
-    backText: { color: 'rgba(255,255,255,0.8)', fontSize: fontSize.sm },
-    title: { color: colors.white, fontSize: fontSize.xl, fontWeight: '700' },
-  });
 
   return (
     <View style={styles.container}>
-      <StatusBar backgroundColor={colors.primary} barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'} />
+      <StatusBar backgroundColor={colors.primary} barStyle="light-content" />
       {showBack && (
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Text style={styles.backText}>← Voltar</Text>
@@ -36,3 +23,15 @@ export const Header = ({ title, showBack = false }: HeaderProps) => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    backgroundColor: colors.primary,
+    paddingTop: spacing.xl,
+    paddingBottom: spacing.md,
+    paddingHorizontal: spacing.md,
+  },
+  backBtn: { marginBottom: spacing.xs },
+  backText: { color: 'rgba(255,255,255,0.8)', fontSize: fontSize.sm },
+  title: { color: colors.white, fontSize: fontSize.xl, fontWeight: '700' },
+});

@@ -1,6 +1,4 @@
-import { useColorScheme } from 'react-native';
-
-const LIGHT = {
+export const colors = {
   primary: '#1A56DB',
   primaryDark: '#1340A8',
   primaryLight: '#EBF1FF',
@@ -14,23 +12,6 @@ const LIGHT = {
   textPrimary: '#1E293B',
   textSecondary: '#64748B',
   textMuted: '#94A3B8',
-  white: '#FFFFFF',
-};
-
-const DARK = {
-  primary: '#0F172A',
-  primaryDark: '#0b1220',
-  primaryLight: '#0b1220',
-  accent: '#F59E0B',
-  success: '#10B981',
-  danger: '#EF4444',
-  warning: '#F59E0B',
-  background: '#0B1220',
-  surface: '#071024',
-  border: '#111827',
-  textPrimary: '#E6EEF8',
-  textSecondary: '#9CA3AF',
-  textMuted: '#6B7280',
   white: '#FFFFFF',
 };
 
@@ -58,12 +39,3 @@ export const fontSize = {
   xl: 22,
   xxl: 28,
 };
-
-export const useAppTheme = () => {
-  const scheme = useColorScheme();
-  const colors = scheme === 'dark' ? DARK : LIGHT;
-  return { colors, spacing, radius, fontSize, scheme };
-};
-
-// legacy export for quick imports (defaults to light)
-export const colors = LIGHT;

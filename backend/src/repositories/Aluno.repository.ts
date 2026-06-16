@@ -3,14 +3,16 @@ import AlunoType from "../types/Aluno.type";
 
 class AlunoRepository {
     public async createAluno(aluno: AlunoType) {
-        const query = "INSERT INTO alunos (matricula, nome, curso, email, senha, semestre, telefone, cep, endereco, cidade, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11);"
+        const query = "INSERT INTO alunos (matricula, nome, curso, curso_id, email, senha, semestre, periodo, telefone, cep, endereco, cidade, estado) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13);"
         const values = [
             aluno.matricula,
             aluno.nome,
             aluno.curso,
+            aluno.curso_id ?? null,
             aluno.email,
             aluno.senha ?? '123456',
             aluno.semestre,
+            aluno.periodo ?? 'Noturno',
             aluno.telefone,
             aluno.cep,
             aluno.endereco,

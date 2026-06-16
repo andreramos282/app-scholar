@@ -3,8 +3,15 @@ import DisciplinaType from "../types/Diciplina.type";
 
 class DisciplinaRepository {
     public async createDisciplina(disciplina: DisciplinaType) {
-        const query = "INSERT INTO disciplina (nome, carga_horaria, professor_id, curso, semestre) VALUES ($1, $2, $3, $4, $5);"
-        await db.query(query, Object.values<any>(disciplina))
+        const query = "INSERT INTO disciplina (nome, carga_horaria, professor_id, curso, semestre, periodo) VALUES ($1, $2, $3, $4, $5, $6);"
+        await db.query(query, [
+            disciplina.nome,
+            disciplina.carga_horaria,
+            disciplina.professor_id ?? null,
+            disciplina.curso,
+            disciplina.semestre,
+            disciplina.periodo ?? 'Noturno',
+        ])
     }
 
     public async getDisciplinaPerId(id: number) {
@@ -14,13 +21,13 @@ class DisciplinaRepository {
     }
 
     public async getDisciplinas(): Promise<DisciplinaType[]> {
-        const query = "SELECT * FROM disciplina ORDER BY semestre, curso"
+        const query = "SELECT * FROM disciplina ORDER BY semestre, curso, periodo"
         const res = await db.query<DisciplinaType>(query)
         return res.rows
     }
 
     public async getDisciplinasPorProfessor(professorId: number): Promise<DisciplinaType[]> {
-        const query = "SELECT * FROM disciplina WHERE professor_id = $1 ORDER BY semestre, curso"
+        const query = "SELECT * FROM disciplina WHERE professor_id = $1 ORDER BY semestre, curso, periodo"
         const res = await db.query<DisciplinaType>(query, [professorId])
         return res.rows
     }
@@ -38,7 +45,7 @@ class DisciplinaRepository {
     }
 
     public async getDisciplinasPorCursoESemestrePorCursoSemestre(curso: string, semestre: number): Promise<DisciplinaType[]> {
-        const query = "SELECT * FROM disciplina WHERE curso = $1 AND semestre = $2 ORDER BY semestre, curso"
+        const query = "SELECT * FROM disciplina WHERE curso = $1 AND semestre = $2 ORDER BY semestre, curso, periodo"
         const res = await db.query<DisciplinaType>(query, [curso, semestre])
         return res.rows
     }

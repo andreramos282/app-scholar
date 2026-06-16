@@ -5,6 +5,7 @@ type DisciplinaType = {
     professor_id?: number;
     curso: string;
     semestre: number;
+    periodo?: string;
 };
 
 export default DisciplinaType

@@ -24,10 +24,8 @@ export class BoletimController {
 
   async findByAluno(req: Request, res: Response) {
     try {
-      const boletins = await boletimRepo.findByAluno(req.params.matricula);
-      if (boletins.length === 0) {
-        return res.status(404).json({ error: 'Nenhum boletim encontrado para este aluno' });
-      }
+      const matricula = String(req.params.matricula);
+      const boletins = await boletimRepo.findByAluno(matricula);
       res.json(boletins);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -36,7 +34,8 @@ export class BoletimController {
 
   async update(req: Request, res: Response) {
     try {
-      const boletim = await boletimRepo.update(parseInt(req.params.id), req.body);
+      const id = Number(req.params.id);
+      const boletim = await boletimRepo.update(id, req.body);
       res.json(boletim);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -45,10 +44,9 @@ export class BoletimController {
 
   async delete(req: Request, res: Response) {
     try {
-      const deleted = await boletimRepo.delete(parseInt(req.params.id));
-      if (!deleted) {
-        return res.status(404).json({ error: 'Boletim não encontrado' });
-      }
+      const id = Number(req.params.id);
+      const deleted = await boletimRepo.delete(id);
+      if (!deleted) return res.status(404).json({ error: 'Boletim não encontrado' });
       res.json({ message: 'Boletim deletado com sucesso' });
     } catch (error: any) {
       res.status(500).json({ error: error.message });

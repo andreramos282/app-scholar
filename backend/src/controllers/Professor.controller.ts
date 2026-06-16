@@ -20,7 +20,8 @@ class ProfessorController {
         try {
             const { id } = req.query
             if (!id) {
-                res.sendStatus(400)
+                const professores = await this.service.getProfessores()
+                res.status(200).json({ response: professores })
                 return
             }
             if (typeof id != "string") {

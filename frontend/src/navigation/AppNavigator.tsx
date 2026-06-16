@@ -7,6 +7,7 @@ import { DashboardScreen } from '../screens/DashboardScreen';
 import { CadastroAlunosScreen } from '../screens/CadastroAlunosScreen';
 import { CadastroProfessoresScreen } from '../screens/CadastroProfessoresScreen';
 import { CadastroDisciplinasScreen } from '../screens/CadastroDisciplinasScreen';
+import { CadastroCursosScreen } from '../screens/CadastroCursosScreen';
 import { BoletimScreen } from '../screens/BoletimScreen';
 import { EstatisticasScreen } from '../screens/EstatisticasScreen';
 import { Loading } from '../components/Loading';
@@ -17,6 +18,7 @@ export type AppStackParamList = {
   CadastroAlunos: undefined;
   CadastroProfessores: undefined;
   CadastroDisciplinas: undefined;
+  CadastroCursos: undefined;
   Boletim: undefined;
   Estatisticas: undefined;
 };
@@ -37,6 +39,7 @@ export const AppNavigator = () => {
             <Stack.Screen name="CadastroAlunos" component={CadastroAlunosScreen} />
             <Stack.Screen name="CadastroProfessores" component={CadastroProfessoresScreen} />
             <Stack.Screen name="CadastroDisciplinas" component={CadastroDisciplinasScreen} />
+            <Stack.Screen name="CadastroCursos" component={CadastroCursosScreen} />
             <Stack.Screen name="Boletim" component={BoletimScreen} />
             <Stack.Screen name="Estatisticas" component={EstatisticasScreen} />
           </>

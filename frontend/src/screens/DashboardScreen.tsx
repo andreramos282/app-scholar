@@ -17,10 +17,11 @@ interface MenuCard {
 }
 
 const MENU_CARDS: MenuCard[] = [
+  { icon: '🎓', title: 'Cursos', subtitle: 'Cadastro, edição e vínculo', screen: 'CadastroCursos', color: '#2563EB' },
   { icon: '👤', title: 'Alunos', subtitle: 'Gerenciar cadastros', screen: 'CadastroAlunos', color: '#4F46E5' },
   { icon: '👨‍🏫', title: 'Professores', subtitle: 'Gerenciar corpo docente', screen: 'CadastroProfessores', color: '#0891B2' },
   { icon: '📚', title: 'Disciplinas', subtitle: 'Gerenciar matérias', screen: 'CadastroDisciplinas', color: '#059669' },
-  { icon: '📋', title: 'Boletim', subtitle: 'Consultar notas', screen: 'Boletim', color: '#D97706' },
+  { icon: '📋', title: 'Boletim', subtitle: 'Notas, provas, frequência e situação', screen: 'Boletim', color: '#D97706' },
   { icon: '📊', title: 'Estatísticas', subtitle: 'Ver dados gerais', screen: 'Estatisticas', color: '#7C3AED' },
 ];
 
@@ -46,7 +47,7 @@ export const DashboardScreen = () => {
         {MENU_CARDS.filter((item) => {
           if (user?.perfil === 'admin') return true;
           if (user?.perfil === 'aluno') return item.screen === 'Boletim';
-          if (user?.perfil === 'professor') return item.screen === 'Boletim' || item.screen === 'CadastroDisciplinas';
+          if (user?.perfil === 'professor') return ['Boletim', 'CadastroAlunos', 'CadastroDisciplinas', 'CadastroCursos'].includes(item.screen);
           return false;
         }).map((item) => (
           <TouchableOpacity
@@ -64,7 +65,7 @@ export const DashboardScreen = () => {
         ))}
       </View>
 
-      <Text style={styles.version}>App Scholar v1.0 — Fatec Jacareí</Text>
+      <Text style={styles.version}>SGA Scholar Elite v4.0 — Fatec Jacareí</Text>
     </ScrollView>
   );
 };

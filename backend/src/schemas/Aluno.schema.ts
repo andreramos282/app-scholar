@@ -1,16 +1,19 @@
 import { z } from "zod";
 
 export const alunoSchema = z.object({
-    matricula: z.string(),
-    nome: z.string(),
-    curso: z.string(),
+    matricula: z.string().min(1),
+    nome: z.string().min(1),
+    curso: z.string().min(1),
+    curso_id: z.coerce.number().int().positive().optional().nullable(),
     email: z.string().email(),
-    semestre: z.number().min(1).max(6),
-    telefone: z.string().optional(),
-    cep: z.string().optional(),
-    endereco: z.string().optional(),
-    cidade: z.string().optional(),
-    estado: z.string().length(2).optional()
+    senha: z.string().optional().default('123456'),
+    semestre: z.coerce.number().min(1).max(6).default(1),
+    periodo: z.enum(["Matutino", "Vespertino", "Noturno", "Diurno"]).default("Noturno"),
+    telefone: z.string().optional().default(''),
+    cep: z.string().optional().default(''),
+    endereco: z.string().optional().default(''),
+    cidade: z.string().optional().default(''),
+    estado: z.string().optional().default('')
 });
 
 export type Aluno = z.infer<typeof alunoSchema>;

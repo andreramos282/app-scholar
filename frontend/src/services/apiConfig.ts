@@ -1,31 +1,36 @@
+import { Platform } from 'react-native';
 
-import { Platform } from 'react-native'
+const getBaseUrl = () => {
+  if (Platform.OS === 'web') return 'http://localhost:3000';
+  if (Platform.OS === 'android') return 'http://10.0.2.2:3000';
+  return 'http://localhost:3000';
+};
 
 export const API_CONFIG = {
-  BASE_URL: 'http://10.0.2.2:3000',
+  BASE_URL: getBaseUrl(),
   TIMEOUT: 10000,
 };
-// Rotas da API
+
 export const API_ROUTES = {
     authLogin: '/api/auth/login',
     authChangePassword: '/api/auth/change-password',
 
-    // Alunos
     alunos: '/api/aluno',
     ALUNOS: '/api/aluno',
     ALUNO_BY_ID: (matricula: string) => `/api/aluno?matricula=${matricula}`,
 
-    // Professores
     professores: '/api/professor',
     PROFESSORES: '/api/professor',
     PROFESSOR_BY_ID: (id: number) => `/api/professor?id=${id}`,
 
-    // Disciplinas
+    CURSOS: '/api/curso',
+    cursos: '/api/curso',
+    CURSO_BY_ID: (id: number) => `/api/curso/${id}`,
+
     disciplinas: '/api/disciplina',
     DISCIPLINAS: '/api/disciplina',
     DISCIPLINA_BY_ID: (id: number) => `/api/disciplina?id=${id}`,
 
-    // Boletim (sub-rotas do aluno)
     BOLETIM: '/api/aluno/boletim',
     BOLETIM_BY_ALUNO: (matricula: string) => `/api/aluno/boletim?matricula=${matricula}`,
     ALUNO_DISCIPLINAS: (matricula: string) => `/api/aluno/disciplinas?matricula=${matricula}`,

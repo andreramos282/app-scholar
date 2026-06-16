@@ -47,6 +47,11 @@ class AlunoService {
         return boletim
     }
 
+    public async getBoletimGeral() {
+        const boletim = await this.boletimRepository.getBoletimGeral()
+        return boletim
+    }
+
     public async getBoletimPerDisciplina(matricula: string, disciplina_id: number) {
         const boletim = await this.boletimRepository.getBoletimPerAlunoAndDisciplina(matricula, disciplina_id)
         return boletim
@@ -54,15 +59,29 @@ class AlunoService {
 
   public async registerBoletim(newBoletim: BoletimType) {
 
-    const media =
-        (newBoletim.nota1 + newBoletim.nota2) / 2;
+    if (newBoletim.nota1 < 0 || newBoletim.nota1 > 10 || newBoletim.nota2 < 0 || newBoletim.nota2 > 10) {
+        throw new Error("As notas devem estar entre 0 e 10")
+    }
 
-    newBoletim.media = media;
+    newBoletim.tipo_prova = newBoletim.tipo_prova ?? "A"
+    newBoletim.faltas = Number(newBoletim.faltas ?? 0)
+    newBoletim.aulas_totais = Number(newBoletim.aulas_totais ?? 0)
 
-    newBoletim.situacao =
-        media >= 6
-            ? "Aprovado"
-            : "Reprovado";
+    if (newBoletim.frequencia === undefined || newBoletim.frequencia === null) {
+        newBoletim.frequencia = newBoletim.aulas_totais > 0
+            ? Math.max(0, Math.min(100, ((newBoletim.aulas_totais - newBoletim.faltas) / newBoletim.aulas_totais) * 100))
+            : 100
+    } else {
+        newBoletim.frequencia = Number(newBoletim.frequencia)
+    }
+
+    if (newBoletim.faltas < 0 || newBoletim.aulas_totais < 0 || newBoletim.frequencia < 0 || newBoletim.frequencia > 100) {
+        throw new Error("Frequência deve ficar entre 0 e 100, aulas totais/faltas não podem ser negativas")
+    }
+
+    const media = (newBoletim.nota1 + newBoletim.nota2) / 2;
+
+    newBoletim.situacao = (newBoletim.frequencia ?? 100) < 75 ? "Reprovado por falta" : media >= 6 ? "Aprovado" : "Reprovado por nota";
 
     const boletim = (
         await this.getBoletimPerDisciplina(

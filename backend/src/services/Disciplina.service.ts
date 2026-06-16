@@ -13,6 +13,10 @@ class DisciplinaService {
         return disciplina
     }
 
+    public async getDisciplinas() {
+        return await this.repository.getDisciplinas()
+    }
+
     public async getTotalDisciplinas(): Promise<number> {
         return await this.repository.getTotalDisciplinas()
     }

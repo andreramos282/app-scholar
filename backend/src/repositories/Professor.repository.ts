@@ -3,12 +3,13 @@ import ProfessorType from "../types/Professor.type";
 
 class ProfessorRepository {
     public async createProfessor(professor: ProfessorType) {
-        const query = "INSERT INTO professores (nome, titulacao, area_atuacao, semestre, tempo_docencia, email, senha) VALUES ($1, $2, $3, $4, $5, $6, $7);"
+        const query = "INSERT INTO professores (nome, titulacao, area_atuacao, semestre, periodo, tempo_docencia, email, senha) VALUES ($1, $2, $3, $4, $5, $6, $7, $8);"
         const values = [
             professor.nome,
             professor.titulacao,
             professor.area_atuacao,
             professor.semestre,
+            professor.periodo ?? 'Noturno',
             professor.tempo_docencia,
             professor.email,
             professor.senha ?? '123456',

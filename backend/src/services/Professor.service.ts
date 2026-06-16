@@ -17,6 +17,10 @@ class ProfessorService {
         return professor
     }
 
+    public async getProfessores() {
+        return await this.repository.getProfessores()
+    }
+
     public async getDisciplinasPorProfessor(professorId: number) {
         return await this.disciplinaRepository.getDisciplinasPorProfessor(professorId)
     }

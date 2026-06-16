@@ -4,6 +4,7 @@ type ProfessorType = {
     titulacao: string;
     area_atuacao: string;
     semestre: number;
+    periodo?: string;
     tempo_docencia?: number;
     email: string;
     senha?: string;

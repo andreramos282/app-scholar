@@ -34,6 +34,7 @@ export interface Boletim {
   disciplina_id: number;
   nota1: number;
   nota2: number;
+  tipo_prova?: 'A' | 'B' | 'C';
   media?: number;
   situacao?: string;
 }

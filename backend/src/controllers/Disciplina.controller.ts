@@ -19,6 +19,11 @@ class DisciplinaController {
     public async getDisciplina(req: Request, res: Response) {
         try {
             const { id } = req.query
+            if (!id) {
+                const disciplinas = await this.service.getDisciplinas()
+                res.status(200).json({ response: disciplinas })
+                return
+            }
             if (typeof id != "string") {
                 res.sendStatus(400)
                 return

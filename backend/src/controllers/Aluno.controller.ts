@@ -43,9 +43,9 @@ class AlunoController {
             const boletim = req.body
             await this.service.registerBoletim(boletim)
             res.status(200).json({ message: "Boletim atualizado!" })
-        } catch (error: unknown) {
+        } catch (error: any) {
             console.error("Error:", error)
-            res.sendStatus(500)
+            res.status(400).json({ message: error?.message || "Erro ao salvar boletim" })
         }
     }
 
@@ -53,8 +53,8 @@ class AlunoController {
         try {
             const { matricula } = req.query
             if (!matricula) {
-                res.sendStatus(400)
-                console.log("sem matricula")
+                const boletins = await this.service.getBoletimGeral()
+                res.status(200).json(boletins)
                 return
             }
             if (typeof matricula != "string") {

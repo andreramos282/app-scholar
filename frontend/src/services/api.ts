@@ -13,7 +13,7 @@ const getHeaders = (token?: string) => {
 };
 
 export const api = {
-    get: async (route: string, token?: string): Promise<any> => {
+    get: async <T = any>(route: string, token?: string): Promise<T> => {
         const url = `${API_CONFIG.BASE_URL}${route}`;
 
         console.log('GET URL:', url);
@@ -31,10 +31,10 @@ export const api = {
             throw new Error(error.message || `Erro ${response.status}`);
         }
 
-        return response.json();
+        return response.json() as Promise<T>;
     },
 
-    post: async (route: string, body: unknown, token?: string): Promise<any> => {
+    post: async <T = any>(route: string, body: unknown, token?: string): Promise<T> => {
         const url = `${API_CONFIG.BASE_URL}${route}`;
 
         console.log('POST URL:', url);
@@ -55,10 +55,10 @@ export const api = {
             throw new Error(`Erro ${response.status}: ${text}`);
         }
 
-        return text ? JSON.parse(text) : {};
+        return (text ? JSON.parse(text) : {}) as T;
     },
 
-    put: async (route: string, body: unknown, token?: string): Promise<any> => {
+    put: async <T = any>(route: string, body: unknown, token?: string): Promise<T> => {
         const url = `${API_CONFIG.BASE_URL}${route}`;
 
         console.log('PUT URL:', url);
@@ -78,10 +78,10 @@ export const api = {
             throw new Error(error.message || `Erro ${response.status}`);
         }
 
-        return response.json();
+        return response.json() as Promise<T>;
     },
 
-    delete: async (route: string, token?: string): Promise<any> => {
+    delete: async <T = any>(route: string, token?: string): Promise<T> => {
         const url = `${API_CONFIG.BASE_URL}${route}`;
 
         console.log('DELETE URL:', url);
@@ -99,6 +99,6 @@ export const api = {
             throw new Error(error.message || `Erro ${response.status}`);
         }
 
-        return response.json();
+        return response.json() as Promise<T>;
     },
 };
